@@ -97,17 +97,14 @@ def load_babe(path_sg1, path_sg2):
 
 def load_mbic(path):
     """
-    loads the MBIC dataset, standardizes labels, and selects relevant columns.
-    this function assumes the excel file has 'source', 'text', and 'label' columns.
+    Loads the MBIC dataset, standardizes labels, and selects relevant columns.
+    Uses the correct MBIC columns: 'outlet', 'sentence', and 'type'.
     """
     print(f"Loading MBIC data from {path}...")
     try:
         df = pd.read_excel(path)
-        # Assumptions on column names - PLEASE VERIFY
-        # Assuming 'category' contains the bias label.
-        df['label'] = df['category'].str.lower()
-        df = df[['source', 'text', 'label']]
-         # Filter for the labels we care about
+        df['label'] = df['type'].str.lower()
+        df = df[['outlet', 'sentence', 'label']].rename(columns={'outlet': 'source', 'sentence': 'text'})
         df = df[df['label'].isin(['left', 'center', 'right'])]
         print(f"Loaded {len(df)} articles from MBIC.")
         return df.dropna(subset=['text', 'label'])
@@ -115,8 +112,9 @@ def load_mbic(path):
         print(f"Warning: MBIC file not found at {path}. Skipping.")
         return pd.DataFrame(columns=['source', 'text', 'label'])
     except KeyError:
-        print(f"Warning: MBIC file at {path} does not have the expected columns ('source', 'text', 'category'). Skipping.")
+        print(f"Warning: MBIC file at {path} does not have the expected columns ('outlet', 'sentence', 'type'). Skipping.")
         return pd.DataFrame(columns=['source', 'text', 'label'])
+
 
 def load_all_data():
     # loads all datasets
