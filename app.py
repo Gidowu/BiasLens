@@ -35,9 +35,6 @@ if st.button("Classify"):
             # Display as table or bar chart
             st.subheader("Prediction Confidence")
             st.dataframe(prob_df.set_index('Bias'))
-
-            # Optional: bar chart
-            st.bar_chart(pd.DataFrame({'Confidence': probs}, index=labels))
         
         except AttributeError:
             st.error("This model does not support probability outputs.")
