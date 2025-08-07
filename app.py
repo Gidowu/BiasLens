@@ -23,18 +23,33 @@ if st.button("Classify"):
         prediction = model.predict(X_input)[0]
         st.success(f"Predicted Bias: **{prediction}**")
 
-        # Predict probabilities
+               # Predict probabilities
         try:
+            # Get probabilities for each class
             probs = model.predict_proba(X_input)[0]
-            labels = model.lr_model.classes_ if hasattr(model, 'lr_model') else model.classes_
+            labels = model.classes_ if hasattr(model, 'classes_') else ['left', 'center', 'right']
+
+            # Create DataFrame
             prob_df = pd.DataFrame({
                 'Bias': labels,
                 'Probability': [f"{p*100:.2f}%" for p in probs]
             })
 
-            # Display as table or bar chart
             st.subheader("Prediction Confidence")
+
+            # Show table
             st.dataframe(prob_df.set_index('Bias'))
-        
+
+            # Convert to numeric for visualization
+            prob_df['Confidence (%)'] = prob_df['Probability'].str.rstrip('%').astype(float)
+
+            # Show bar chart
+            st.bar_chart(prob_df.set_index('Bias')['Confidence (%)'])
+
+            # Show metric for predicted bias
+            predicted_bias = prob_df.loc[prob_df['Bias'] == prediction]
+            confidence = float(predicted_bias['Confidence (%)'].values[0])
+            st.metric(label="Confidence in Prediction", value=f"{confidence:.2f}%")
+
         except AttributeError:
             st.error("This model does not support probability outputs.")
